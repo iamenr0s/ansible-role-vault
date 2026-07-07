@@ -1,0 +1,13 @@
+---
+# Generic writer for signed SSH certificates. Callers pass:
+#   __vault_ssh_signed_key, __vault_ssh_cert_dest, __vault_ssh_cert_mode
+# Signed certificates are public material, so no_log is not required here.
+
+- name: write_ssh_cert | Write signed SSH certificate to disk
+  ansible.builtin.copy:
+    content: "{{ __vault_ssh_signed_key }}"
+    dest: "{{ __vault_ssh_cert_dest }}"
+    owner: "{{ vault_render_owner }}"
+    group: "{{ vault_render_group }}"
+    mode: "{{ __vault_ssh_cert_mode }}"
+    backup: true

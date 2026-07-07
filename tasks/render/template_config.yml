@@ -1,0 +1,18 @@
+---
+- name: template_config | Assert render destination is configured
+  ansible.builtin.assert:
+    that:
+      - vault_render_dest is defined
+      - vault_render_dest | length > 0
+    fail_msg: "vault_render_template also requires vault_render_dest to be set"
+    quiet: true
+
+- name: template_config | Render Vault secrets into the destination config file
+  ansible.builtin.template:
+    src: "{{ vault_render_template }}"
+    dest: "{{ vault_render_dest }}"
+    owner: "{{ vault_render_owner }}"
+    group: "{{ vault_render_group }}"
+    mode: "{{ vault_render_mode }}"
+    backup: "{{ vault_render_backup }}"
+  no_log: true

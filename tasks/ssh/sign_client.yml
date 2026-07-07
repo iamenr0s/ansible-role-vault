@@ -1,0 +1,58 @@
+---
+- name: sign_client | Assert client signing variables are configured
+  ansible.builtin.assert:
+    that:
+      - vault_ssh_client_role is defined
+      - vault_ssh_client_role | length > 0
+      - vault_ssh_client_pubkey_path is defined
+      - vault_ssh_client_pubkey_path | length > 0
+      - vault_ssh_client_cert_path is defined
+      - vault_ssh_client_cert_path | length > 0
+    fail_msg: >-
+      vault_operations.ssh_client_sign requires vault_ssh_client_role,
+      vault_ssh_client_pubkey_path and vault_ssh_client_cert_path
+    quiet: true
+
+- name: sign_client | Sign SSH client certificate via Vault SSH secrets engine
+  block:
+    - name: sign_client | Read client public key from the target
+      ansible.builtin.slurp:
+        src: "{{ vault_ssh_client_pubkey_path }}"
+      register: __vault_ssh_client_pubkey
+
+    # hashicorp.vault has no SSH secrets engine module (see CLAUDE.md) — a
+    # direct uri call against the HTTP API is the supported integration path.
+    # Vault calls client certificates cert_type=user.
+    - name: sign_client | Request signed client certificate from Vault
+      ansible.builtin.uri:
+        url: "{{ vault_addr }}/{{ __vault_api_prefix }}/{{ vault_ssh_mount }}/sign/{{ vault_ssh_client_role }}"
+        method: POST
+        validate_certs: "{{ vault_validate_certs }}"
+        headers:
+          X-Vault-Token: "{{ vault_token }}"
+        body_format: json
+        body:
+          cert_type: user
+          public_key: "{{ __vault_ssh_client_pubkey['content'] | b64decode }}"
+          ttl: "{{ vault_ssh_client_cert_ttl }}"
+        status_code:
+          - 200
+      register: __vault_ssh_client_sign_result
+      no_log: true
+      changed_when: true  # every call issues a fresh certificate (v1 design)
+  rescue:
+    - name: sign_client | Fail with actionable client signing error
+      ansible.builtin.fail:
+        msg: >-
+          Client certificate signing failed — check that the SSH secrets
+          engine is mounted at '{{ vault_ssh_mount }}', that role
+          '{{ vault_ssh_client_role }}' exists and allows cert_type=user,
+          that the token's policy permits {{ vault_ssh_mount }}/sign, and
+          that a public key exists at {{ vault_ssh_client_pubkey_path }}.
+
+- name: sign_client | Write signed client certificate to disk
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/render/write_ssh_cert.yml"
+  vars:
+    __vault_ssh_signed_key: "{{ __vault_ssh_client_sign_result['json']['data']['signed_key'] }}"
+    __vault_ssh_cert_dest: "{{ vault_ssh_client_cert_path }}"
+    __vault_ssh_cert_mode: "{{ vault_ssh_client_cert_mode }}"

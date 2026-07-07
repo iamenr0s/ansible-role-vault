@@ -1,0 +1,33 @@
+---
+- name: kubernetes | Obtain Vault token via Kubernetes auth
+  block:
+    # auth_login has no TLS parameters (verified against hashicorp.vault
+    # 2.0.0-dev): server trust comes from the system CA store or
+    # REQUESTS_CA_BUNDLE on the executing host.
+    - name: kubernetes | Login to Vault with the projected service account JWT
+      hashicorp.vault.auth_login:
+        url: "{{ vault_addr }}"
+        auth_method: kubernetes
+        mount_path: "{{ vault_k8s_mount }}"
+        auth_params:
+          role: "{{ vault_k8s_role }}"
+          # lookup('file') reads on the CONTROLLER — this auth method assumes
+          # the play runs inside a pod (e.g. an execution environment) with a
+          # projected service account token at vault_k8s_jwt_path.
+          jwt: "{{ lookup('ansible.builtin.file', vault_k8s_jwt_path) }}"
+      register: __vault_auth_result
+      no_log: true
+
+    - name: kubernetes | Normalize login result into vault_token
+      ansible.builtin.set_fact:
+        vault_token: "{{ __vault_auth_result['token_id'] }}"
+      no_log: true
+  rescue:
+    - name: kubernetes | Fail with actionable Kubernetes auth error
+      ansible.builtin.fail:
+        msg: >-
+          Kubernetes auth login to {{ vault_addr }} failed — check that
+          vault_k8s_role is bound to this service account and namespace, the
+          '{{ vault_k8s_mount }}' auth mount exists, and a projected service
+          account token is readable at {{ vault_k8s_jwt_path }} on the
+          controller.

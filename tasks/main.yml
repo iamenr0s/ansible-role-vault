@@ -1,0 +1,43 @@
+---
+# Dispatcher: validate inputs, authenticate, then run the requested
+# operations. All real logic lives in per-concern files under auth/,
+# secrets/, ssh/ and render/ — operation files consume only the normalized
+# vault_token fact and must stay auth-method-agnostic.
+
+- name: main | Assert Vault address and auth method are configured
+  ansible.builtin.assert:
+    that:
+      - vault_addr is defined
+      - vault_addr | length > 0
+      - vault_auth_method in __vault_auth_required_vars
+    fail_msg: >-
+      Set vault_addr and choose vault_auth_method from:
+      {{ __vault_auth_required_vars.keys() | join(', ') }}
+
+- name: main | Assert required variables for the selected auth method are set
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.vars', item, default='') | length > 0
+    fail_msg: >-
+      vault_auth_method={{ vault_auth_method }} requires {{ item }} to be set
+    quiet: true
+  loop: "{{ __vault_auth_required_vars[vault_auth_method] }}"
+
+- name: main | Authenticate to Vault
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/auth/{{ vault_auth_method }}.yml"
+
+- name: main | Read secrets from Vault
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/secrets/read.yml"
+  when: vault_operations['read'] | default(false) | bool
+
+- name: main | Write secrets to Vault
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/secrets/write.yml"
+  when: vault_operations['write'] | default(false) | bool
+
+- name: main | Sign SSH host certificate
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/ssh/sign_host.yml"
+  when: vault_operations['ssh_host_sign'] | default(false) | bool
+
+- name: main | Sign SSH client certificate
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/ssh/sign_client.yml"
+  when: vault_operations['ssh_client_sign'] | default(false) | bool

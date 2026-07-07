@@ -40,7 +40,9 @@ htmlcov/
 .claude/
 .remember/
 .planning
-tasks/
+# Only the Claude workflow scratch files — tasks/ itself is the Ansible role
+tasks/TODO.md
+tasks/LESSONS.md
 CLAUDE.md
 
 # Trae Code
