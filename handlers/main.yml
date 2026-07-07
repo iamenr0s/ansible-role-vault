@@ -1,0 +1,5 @@
+---
+# No handlers required: this role renders files whose owning services belong
+# to the consuming playbook. If a service must restart when rendered files
+# change, notify a playbook-level handler (handlers cannot be shared across
+# the role boundary).

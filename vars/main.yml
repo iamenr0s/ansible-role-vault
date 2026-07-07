@@ -1,0 +1,14 @@
+---
+# Internal constants — not user-facing. Do not override from playbooks.
+
+__vault_api_prefix: v1
+
+# Required caller-supplied variables per auth method, enforced by tasks/main.yml.
+__vault_auth_required_vars:
+  approle:
+    - vault_approle_role_id
+    - vault_approle_secret_id
+  token:
+    - vault_token_value
+  kubernetes:
+    - vault_k8s_role

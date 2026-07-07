@@ -1,0 +1,34 @@
+---
+
+dependencies: []
+
+galaxy_info:
+  role_name: ansible_role_vault
+  author: iamenr0s
+  description: >-
+    Integrate playbooks with an external HashiCorp Vault server —
+    authenticate (AppRole, Token, Kubernetes), read/write KV secrets, and
+    sign SSH host/client certificates via the SSH secrets engine.
+  license: MIT
+  min_ansible_version: "2.16"
+  platforms:
+    - name: "EL"
+      versions:
+        - "9"
+    - name: "Rocky"
+      versions:
+        - "all"
+    - name: "Debian"
+      versions:
+        - "bookworm"
+    - name: "Ubuntu"
+      versions:
+        - "jammy"
+        - "noble"
+  galaxy_tags:
+    - vault
+    - hashicorp
+    - secrets
+    - ssh
+    - security
+    - certificates

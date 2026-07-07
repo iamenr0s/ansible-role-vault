@@ -1,0 +1,42 @@
+---
+
+role_name_check: 1
+dependency:
+  name: galaxy
+  options:
+    ignore-errors: true
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: "iamenr0s/docker-${MOLECULE_DISTRO:-almalinux9}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      instance:
+        # The test images ship a venv at /opt/venv that wins interpreter
+        # discovery but lacks 'requests'; pin to the system Python where
+        # prepare.yml installs python3-requests.
+        ansible_python_interpreter: /usr/bin/python3
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+    prepare: prepare.yml
+scenario:
+  # No idempotence step: SSH certificate signing intentionally issues a
+  # fresh certificate (changed) on every run in v1.
+  test_sequence:
+    - dependency
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - destroy

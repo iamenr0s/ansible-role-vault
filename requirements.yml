@@ -1,0 +1,6 @@
+---
+collections:
+  # No stable release is published on galaxy.ansible.com yet — install the
+  # collection straight from GitHub.
+  - name: https://github.com/ansible-collections/hashicorp.vault.git
+    type: git

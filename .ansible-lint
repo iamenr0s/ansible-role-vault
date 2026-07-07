@@ -1,0 +1,5 @@
+---
+skip_list:
+  # Molecule converge references the role by path ({{ playbook_dir }}/../..),
+  # the standard pattern for standalone role repos.
+  - role-name[path]

@@ -1,0 +1,189 @@
+---
+argument_specs:
+  main:
+    short_description: Authenticate to HashiCorp Vault and run secret/SSH operations
+    description:
+      - Authenticates to an external, pre-existing Vault server via AppRole,
+        Token, or Kubernetes auth, then optionally reads/writes KV secrets
+        (rendering them into config files) and signs SSH host/client
+        certificates via the SSH secrets engine.
+    author: iamenr0s
+    options:
+      vault_addr:
+        type: str
+        required: true
+        description: Address of the external Vault server, e.g. "https://vault.example.com:8200".
+      vault_validate_certs:
+        type: bool
+        default: true
+        description: >-
+          Validate the Vault server TLS certificate (KV modules and uri
+          calls; auth_login relies on the executing host's trust store).
+      vault_ca_cert:
+        type: path
+        required: false
+        description: Path to a PEM-encoded CA certificate for TLS verification of KV module calls.
+      vault_namespace:
+        type: str
+        default: root
+        description: Vault namespace ("root" for OSS/self-hosted, "admin" for HCP Vault Dedicated).
+      vault_auth_method:
+        type: str
+        default: approle
+        choices:
+          - approle
+          - token
+          - kubernetes
+        description: Auth method used to obtain the session token.
+      vault_approle_mount:
+        type: str
+        default: approle
+        description: Mount path of the AppRole auth method.
+      vault_approle_role_id:
+        type: str
+        required: false
+        description: AppRole role_id. Required when vault_auth_method=approle.
+      vault_approle_secret_id:
+        type: str
+        required: false
+        no_log: true
+        description: AppRole secret_id. Required when vault_auth_method=approle.
+      vault_token_value:
+        type: str
+        required: false
+        no_log: true
+        description: Pre-issued Vault token. Required when vault_auth_method=token.
+      vault_k8s_mount:
+        type: str
+        default: kubernetes
+        description: Mount path of the Kubernetes auth method.
+      vault_k8s_jwt_path:
+        type: path
+        default: /var/run/secrets/kubernetes.io/serviceaccount/token
+        description: Controller-side path of the projected service account JWT.
+      vault_k8s_role:
+        type: str
+        required: false
+        description: Vault role bound to the service account. Required when vault_auth_method=kubernetes.
+      vault_operations:
+        type: dict
+        description: Toggles for the operations to run after authentication.
+        options:
+          read:
+            type: bool
+            default: false
+            description: Read a KV secret and expose it as vault_secret_data.
+          write:
+            type: bool
+            default: false
+            description: Write vault_kv_write_data to a KV path.
+          ssh_host_sign:
+            type: bool
+            default: false
+            description: Sign the target's SSH host public key.
+          ssh_client_sign:
+            type: bool
+            default: false
+            description: Sign an SSH client (user) public key.
+      vault_kv_mount:
+        type: str
+        default: secret
+        description: Mount path of the KV secrets engine.
+      vault_kv_engine_version:
+        type: int
+        default: 2
+        choices:
+          - 1
+          - 2
+        description: KV secrets engine version.
+      vault_kv_read_path:
+        type: str
+        required: false
+        description: Secret path to read, relative to the mount. Required when vault_operations.read is true.
+      vault_kv_write_path:
+        type: str
+        required: false
+        description: Secret path to write, relative to the mount. Required when vault_operations.write is true.
+      vault_kv_write_data:
+        type: dict
+        default: {}
+        no_log: true
+        description: Key/value pairs to write at vault_kv_write_path.
+      vault_render_template:
+        type: path
+        required: false
+        description: >-
+          Controller-side Jinja2 template consuming vault_secret_data.
+          When set, the read operation renders it.
+      vault_render_dest:
+        type: path
+        required: false
+        description: Destination file on the target host for the rendered template.
+      vault_render_owner:
+        type: str
+        default: root
+        description: Owner of rendered files and written certificates.
+      vault_render_group:
+        type: str
+        default: root
+        description: Group of rendered files and written certificates.
+      vault_render_mode:
+        type: str
+        default: "0600"
+        description: Mode of the rendered config file.
+      vault_render_backup:
+        type: bool
+        default: true
+        description: Keep a backup of the previous rendered config file.
+      vault_ssh_mount:
+        type: str
+        default: ssh
+        description: Mount path of the SSH secrets engine.
+      vault_ssh_host_role:
+        type: str
+        required: false
+        description: Vault SSH role for host certificates. Required when vault_operations.ssh_host_sign is true.
+      vault_ssh_host_pubkey_path:
+        type: path
+        default: /etc/ssh/ssh_host_ed25519_key.pub
+        description: Host public key on the target to sign.
+      vault_ssh_host_cert_path:
+        type: path
+        default: /etc/ssh/ssh_host_ed25519_key-cert.pub
+        description: Destination for the signed host certificate.
+      vault_ssh_host_cert_ttl:
+        type: str
+        default: 24h
+        description: Requested TTL for host certificates.
+      vault_ssh_host_cert_mode:
+        type: str
+        default: "0644"
+        description: Mode of the written host certificate (public material).
+      vault_ssh_client_role:
+        type: str
+        required: false
+        description: >-
+          Vault SSH role for client (user) certificates.
+          Required when vault_operations.ssh_client_sign is true.
+      vault_ssh_client_pubkey_path:
+        type: path
+        required: false
+        description: Client public key on the target to sign. Required when vault_operations.ssh_client_sign is true.
+      vault_ssh_client_cert_path:
+        type: path
+        required: false
+        description: >-
+          Destination for the signed client certificate.
+          Required when vault_operations.ssh_client_sign is true.
+      vault_ssh_client_cert_ttl:
+        type: str
+        default: 8h
+        description: Requested TTL for client certificates.
+      vault_ssh_client_cert_mode:
+        type: str
+        default: "0644"
+        description: Mode of the written client certificate (public material).
+      vault_debug_unsafe:
+        type: bool
+        default: false
+        description: NEVER enable outside disposable environments — permits secret-bearing task output to be logged.

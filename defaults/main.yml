@@ -1,0 +1,85 @@
+---
+# defaults file for vault
+#
+# Every user-facing variable of the role. Variables without a safe default
+# are present but commented out — supply them from the calling playbook
+# (environment, AAP credential, or ansible-vault encrypted vars). Never bake
+# credential values into this file.
+
+# --- Vault server (external, pre-existing) ---
+# Address of the Vault server, e.g. "https://vault.example.com:8200".
+# vault_addr: ""
+vault_validate_certs: true
+# Path to a PEM-encoded CA certificate for TLS verification (optional).
+# vault_ca_cert: ""
+# Vault namespace: "root" for OSS/self-hosted Vault; HCP Vault Dedicated
+# uses "admin", Enterprise users set their own.
+vault_namespace: root
+
+# --- Authentication ---
+# One of: approle, token, kubernetes
+vault_auth_method: approle
+
+# AppRole auth — both required when vault_auth_method=approle.
+vault_approle_mount: approle
+# vault_approle_role_id: ""
+# vault_approle_secret_id: ""
+
+# Token auth — a pre-issued Vault token, required when vault_auth_method=token.
+# vault_token_value: ""
+
+# Kubernetes auth — for plays running inside a pod (e.g. an execution
+# environment) with a projected service account token on the controller.
+vault_k8s_mount: kubernetes
+vault_k8s_jwt_path: /var/run/secrets/kubernetes.io/serviceaccount/token
+# Vault role bound to the service account, required when vault_auth_method=kubernetes.
+# vault_k8s_role: ""
+
+# --- Operation toggles ---
+vault_operations:
+  read: false
+  write: false
+  ssh_host_sign: false
+  ssh_client_sign: false
+
+# --- KV secrets ---
+vault_kv_mount: secret
+vault_kv_engine_version: 2
+# Path of the secret to read, relative to the mount (e.g. "myapp/prod").
+# vault_kv_read_path: ""
+# Path of the secret to write, relative to the mount.
+# vault_kv_write_path: ""
+# Dict of key/value pairs to write at vault_kv_write_path.
+vault_kv_write_data: {}
+
+# --- Rendering read secrets into a config file ---
+# Jinja2 template (controller-side path) consuming the vault_secret_data fact.
+# vault_render_template: ""
+# Destination file on the target host.
+# vault_render_dest: ""
+vault_render_owner: root
+vault_render_group: root
+vault_render_mode: "0600"
+vault_render_backup: true
+
+# --- SSH certificate signing ---
+vault_ssh_mount: ssh
+# Vault SSH role used to sign HOST certificates.
+# vault_ssh_host_role: ""
+vault_ssh_host_pubkey_path: /etc/ssh/ssh_host_ed25519_key.pub
+vault_ssh_host_cert_path: /etc/ssh/ssh_host_ed25519_key-cert.pub
+vault_ssh_host_cert_ttl: 24h
+vault_ssh_host_cert_mode: "0644"
+
+# Vault SSH role used to sign CLIENT (user) certificates.
+# vault_ssh_client_role: ""
+# Public key on the target to sign, and destination for the signed certificate.
+# vault_ssh_client_pubkey_path: ""
+# vault_ssh_client_cert_path: ""
+vault_ssh_client_cert_ttl: 8h
+vault_ssh_client_cert_mode: "0644"
+
+# --- Debug ---
+# NEVER enable outside disposable environments: permits secret-bearing task
+# output to be logged.
+vault_debug_unsafe: false

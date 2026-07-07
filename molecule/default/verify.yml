@@ -1,0 +1,69 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  become: false
+
+  tasks:
+    - name: Stat the rendered env file
+      ansible.builtin.stat:
+        path: /etc/molecule-vault.env
+      register: __verify_env
+
+    - name: Assert the rendered env file exists with mode 0600
+      ansible.builtin.assert:
+        that:
+          - __verify_env['stat']['exists']
+          - __verify_env['stat']['mode'] == '0600'
+        fail_msg: "Rendered env file missing or has wrong permissions"
+
+    - name: Read the rendered env file
+      ansible.builtin.slurp:
+        src: /etc/molecule-vault.env
+      register: __verify_env_content
+      no_log: true
+
+    - name: Assert the rendered file contains the seeded secret
+      ansible.builtin.assert:
+        that:
+          - "'USERNAME=molecule' in __verify_env_content['content'] | b64decode"
+          - "'ENV=test' in __verify_env_content['content'] | b64decode"
+        fail_msg: "Rendered env file does not contain the expected secret keys"
+
+    - name: Inspect the signed host certificate
+      ansible.builtin.command:
+        cmd: ssh-keygen -Lf /etc/ssh/ssh_host_ed25519_key-cert.pub
+      register: __verify_host_cert
+      changed_when: false
+
+    - name: Assert the host certificate is a host certificate
+      ansible.builtin.assert:
+        that:
+          - "'host certificate' in __verify_host_cert['stdout']"
+        fail_msg: "Signed host certificate is missing or not a host certificate"
+
+    - name: Inspect the signed client certificate
+      ansible.builtin.command:
+        cmd: ssh-keygen -Lf /root/.ssh/id_ed25519-cert.pub
+      register: __verify_client_cert
+      changed_when: false
+
+    - name: Assert the client certificate is a user certificate
+      ansible.builtin.assert:
+        that:
+          - "'user certificate' in __verify_client_cert['stdout']"
+        fail_msg: "Signed client certificate is missing or not a user certificate"
+
+    - name: Read back the secret written by the role
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8200/v1/secret/data/molecule/written
+        headers:
+          X-Vault-Token: root
+      register: __verify_written
+
+    - name: Assert the written secret content matches
+      ansible.builtin.assert:
+        that:
+          - __verify_written['json']['data']['data']['rotated_by'] == 'molecule'
+        fail_msg: "Secret written by the role is missing or has wrong content"
