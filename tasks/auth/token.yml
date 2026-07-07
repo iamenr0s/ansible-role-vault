@@ -1,7 +1,7 @@
 ---
-- name: token | Verify supplied token and normalize into vault_token
+- name: Verify supplied token and normalize into vault_token
   block:
-    - name: token | Verify token via self-lookup
+    - name: Verify token via self-lookup
       ansible.builtin.uri:
         url: "{{ vault_addr }}/{{ __vault_api_prefix }}/auth/token/lookup-self"
         method: GET
@@ -14,12 +14,12 @@
       no_log: true
       changed_when: false
 
-    - name: token | Normalize supplied token into vault_token
+    - name: Normalize supplied token into vault_token
       ansible.builtin.set_fact:
         vault_token: "{{ vault_token_value }}"
       no_log: true
   rescue:
-    - name: token | Fail with actionable token error
+    - name: Fail with actionable token error
       ansible.builtin.fail:
         msg: >-
           Token verification against {{ vault_addr }} failed — the supplied

@@ -3,7 +3,7 @@
 #   __vault_ssh_signed_key, __vault_ssh_cert_dest, __vault_ssh_cert_mode
 # Signed certificates are public material, so no_log is not required here.
 
-- name: write_ssh_cert | Write signed SSH certificate to disk
+- name: Write signed SSH certificate to disk
   ansible.builtin.copy:
     content: "{{ __vault_ssh_signed_key }}"
     dest: "{{ __vault_ssh_cert_dest }}"

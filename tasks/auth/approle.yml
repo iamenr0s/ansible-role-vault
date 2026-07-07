@@ -1,10 +1,10 @@
 ---
-- name: approle | Obtain Vault token via AppRole login
+- name: Obtain Vault token via AppRole login
   block:
     # auth_login has no TLS parameters (verified against hashicorp.vault
     # 2.0.0-dev): server trust comes from the system CA store or
     # REQUESTS_CA_BUNDLE on the executing host.
-    - name: approle | Login to Vault with role_id and secret_id
+    - name: Login to Vault with role_id and secret_id
       hashicorp.vault.auth_login:
         url: "{{ vault_addr }}"
         auth_method: approle
@@ -17,12 +17,12 @@
 
     # Return shape verified against hashicorp.vault 2.0.0-dev: msg, token_id,
     # authentication (dict).
-    - name: approle | Normalize login result into vault_token
+    - name: Normalize login result into vault_token
       ansible.builtin.set_fact:
         vault_token: "{{ __vault_auth_result['token_id'] }}"
       no_log: true
   rescue:
-    - name: approle | Fail with actionable AppRole error
+    - name: Fail with actionable AppRole error
       ansible.builtin.fail:
         msg: >-
           AppRole login to {{ vault_addr }} failed — check

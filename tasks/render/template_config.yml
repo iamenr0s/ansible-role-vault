@@ -1,5 +1,5 @@
 ---
-- name: template_config | Assert render destination is configured
+- name: Assert render destination is configured
   ansible.builtin.assert:
     that:
       - vault_render_dest is defined
@@ -7,7 +7,7 @@
     fail_msg: "vault_render_template also requires vault_render_dest to be set"
     quiet: true
 
-- name: template_config | Render Vault secrets into the destination config file
+- name: Render Vault secrets into the destination config file
   ansible.builtin.template:
     src: "{{ vault_render_template }}"
     dest: "{{ vault_render_dest }}"

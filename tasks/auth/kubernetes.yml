@@ -1,10 +1,10 @@
 ---
-- name: kubernetes | Obtain Vault token via Kubernetes auth
+- name: Obtain Vault token via Kubernetes auth
   block:
     # auth_login has no TLS parameters (verified against hashicorp.vault
     # 2.0.0-dev): server trust comes from the system CA store or
     # REQUESTS_CA_BUNDLE on the executing host.
-    - name: kubernetes | Login to Vault with the projected service account JWT
+    - name: Login to Vault with the projected service account JWT
       hashicorp.vault.auth_login:
         url: "{{ vault_addr }}"
         auth_method: kubernetes
@@ -18,12 +18,12 @@
       register: __vault_auth_result
       no_log: true
 
-    - name: kubernetes | Normalize login result into vault_token
+    - name: Normalize login result into vault_token
       ansible.builtin.set_fact:
         vault_token: "{{ __vault_auth_result['token_id'] }}"
       no_log: true
   rescue:
-    - name: kubernetes | Fail with actionable Kubernetes auth error
+    - name: Fail with actionable Kubernetes auth error
       ansible.builtin.fail:
         msg: >-
           Kubernetes auth login to {{ vault_addr }} failed — check that

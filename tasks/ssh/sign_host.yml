@@ -1,5 +1,5 @@
 ---
-- name: sign_host | Assert host signing variables are configured
+- name: Assert host signing variables are configured
   ansible.builtin.assert:
     that:
       - vault_ssh_host_role is defined
@@ -7,16 +7,16 @@
     fail_msg: "vault_operations.ssh_host_sign requires vault_ssh_host_role"
     quiet: true
 
-- name: sign_host | Sign SSH host certificate via Vault SSH secrets engine
+- name: Sign SSH host certificate via Vault SSH secrets engine
   block:
-    - name: sign_host | Read host public key from the target
+    - name: Read host public key from the target
       ansible.builtin.slurp:
         src: "{{ vault_ssh_host_pubkey_path }}"
       register: __vault_ssh_host_pubkey
 
     # hashicorp.vault has no SSH secrets engine module (see CLAUDE.md) — a
     # direct uri call against the HTTP API is the supported integration path.
-    - name: sign_host | Request signed host certificate from Vault
+    - name: Request signed host certificate from Vault
       ansible.builtin.uri:
         url: "{{ vault_addr }}/{{ __vault_api_prefix }}/{{ vault_ssh_mount }}/sign/{{ vault_ssh_host_role }}"
         method: POST
@@ -34,7 +34,7 @@
       no_log: true
       changed_when: true  # every call issues a fresh certificate (v1 design)
   rescue:
-    - name: sign_host | Fail with actionable host signing error
+    - name: Fail with actionable host signing error
       ansible.builtin.fail:
         msg: >-
           Host certificate signing failed — check that the SSH secrets engine
@@ -43,7 +43,7 @@
           the token's policy permits {{ vault_ssh_mount }}/sign, and that a
           public key exists at {{ vault_ssh_host_pubkey_path }}.
 
-- name: sign_host | Write signed host certificate to disk
+- name: Write signed host certificate to disk
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/render/write_ssh_cert.yml"
   vars:
     __vault_ssh_signed_key: "{{ __vault_ssh_host_sign_result['json']['data']['signed_key'] }}"
