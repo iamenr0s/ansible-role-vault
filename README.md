@@ -37,7 +37,7 @@ Defined in `defaults/main.yml` (validated by `meta/argument_specs.yml`):
 
 - `vault_addr` (str, required): Vault server URL, e.g. `https://vault.example.com:8200`.
 - `vault_validate_certs` (bool): Validate Vault's TLS certificate (default: `true`).
-- `vault_ca_cert` (path): PEM CA certificate for TLS verification of KV module calls (optional).
+- `vault_ca_cert` (path): PEM CA certificate for TLS verification of KV module calls and the role's `uri` calls (token lookup, SSH signing). For AppRole/Kubernetes login (`auth_login`), trust the CA on the executing host instead — system store or `REQUESTS_CA_BUNDLE` (optional).
 - `vault_namespace` (str): Vault namespace — `root` for OSS/self-hosted, `admin` for HCP Vault Dedicated (default: `root`).
 - `vault_auth_method` (str): `approle`, `token`, or `kubernetes` (default: `approle`).
 - `vault_approle_mount` (str): AppRole auth mount path (default: `approle`).
@@ -53,7 +53,7 @@ Defined in `defaults/main.yml` (validated by `meta/argument_specs.yml`):
 - `vault_kv_write_path` (str) / `vault_kv_write_data` (dict): Secret path and data to write — required for `write`.
 - `vault_render_template` (path) / `vault_render_dest` (path): Optional Jinja2 template consuming `vault_secret_data`, and its destination on the target.
 - `vault_render_owner` / `vault_render_group` / `vault_render_mode`: Ownership and mode of rendered files (defaults: `root` / `root` / `0600`).
-- `vault_render_backup` (bool): Back up the previous rendered file (default: `true`).
+- `vault_render_backup` (bool): Back up the previous rendered file (default: `false`). Backups are timestamped plaintext copies of old secret values — if enabled, purge `*~` files as part of secret rotation.
 - `vault_ssh_mount` (str): SSH secrets engine mount path (default: `ssh`).
 - `vault_ssh_host_role` (str): Vault SSH role for host certificates — required for `ssh_host_sign`.
 - `vault_ssh_host_pubkey_path` / `vault_ssh_host_cert_path`: Host public key to sign and signed cert destination (defaults: `/etc/ssh/ssh_host_ed25519_key.pub` / `/etc/ssh/ssh_host_ed25519_key-cert.pub`).
@@ -84,7 +84,7 @@ Idempotency & Rollback
 -----------------------
 - Idempotent: Partial — KV reads and file rendering only report changes when content changes; SSH certificate signing intentionally issues a fresh certificate (`changed`) on every run.
 - Atomic: No — a failure mid-run can leave some operations applied; each operation is independent.
-- Rollback: Rendered config files and written certificates use `backup: true`; KV v2 retains prior secret versions in Vault itself.
+- Rollback: KV v2 retains prior secret versions in Vault itself; rendered files can keep on-disk backups via `vault_render_backup` (off by default — see the variable note).
 - Check mode: Not supported — Vault API operations require live calls whose results feed later tasks.
 
 Dependencies

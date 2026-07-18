@@ -60,7 +60,10 @@ vault_kv_write_data: {}
 vault_render_owner: root
 vault_render_group: root
 vault_render_mode: "0600"
-vault_render_backup: true
+# Off by default: backups are timestamped plaintext copies of previous secret
+# values that accumulate on the target and survive rotation. If you enable
+# this, purge the "*~" backup files as part of your rotation process.
+vault_render_backup: false
 
 # --- SSH certificate signing ---
 vault_ssh_mount: ssh

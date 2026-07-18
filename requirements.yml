@@ -1,6 +1,8 @@
 ---
 collections:
   # No stable release is published on galaxy.ansible.com yet — install the
-  # collection straight from GitHub.
+  # collection straight from GitHub, pinned to a known-good commit. Bump the
+  # SHA deliberately; switch to a Galaxy version once one is released.
   - name: https://github.com/ansible-collections/hashicorp.vault.git
     type: git
+    version: b74258a6186e0959266ca7a6829e8d720d0e91ef

@@ -34,6 +34,7 @@
         headers:
           X-Vault-Token: root
       register: __molecule_role_id_result
+      no_log: true
 
     - name: Generate an AppRole secret_id
       ansible.builtin.uri:
@@ -45,6 +46,7 @@
           - 200
       register: __molecule_secret_id_result
       changed_when: true
+      no_log: true
 
     - name: Expose the AppRole credentials as facts
       ansible.builtin.set_fact:

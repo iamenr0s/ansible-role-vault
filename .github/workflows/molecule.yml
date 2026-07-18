@@ -12,21 +12,25 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
       - name: Install test dependencies.
-        run: pip3 install yamllint ansible-lint ansible
+        run: pip3 install yamllint==1.38.0 ansible-lint==26.6.0 ansible==14.2.0
 
       - name: Lint code.
         run: |
@@ -36,7 +40,9 @@ jobs:
   molecule:
     name: Molecule
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         distro:
           - almalinux9
@@ -47,15 +53,17 @@ jobs:
 
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
+      # The scenario's driver is podman (molecule/default/molecule.yml);
+      # ubuntu-latest runners ship the podman CLI.
       - name: Install test dependencies.
-        run: pip3 install ansible molecule molecule-plugins[docker] docker requests
+        run: pip3 install ansible==14.2.0 molecule==26.6.0 molecule-plugins[podman]==26.7.15 requests==2.34.2
 
       - name: Run Molecule tests.
         run: molecule test

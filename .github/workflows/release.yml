@@ -7,23 +7,27 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       startsWith(github.event.workflow_run.head_branch, 'v')
     steps:
       - name: 'Checkout git repo'
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           submodules: true
           fetch-depth: 0
 
       - name: 'Release on galaxy'
-        uses: ansible-actions/ansible-galaxy-action@v1.2.0
+        uses: ansible-actions/ansible-galaxy-action@388fe24563eb7889730a1c10587a8acd005bd42a # v1.2.0
         with:
           galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}

@@ -22,7 +22,12 @@ argument_specs:
       vault_ca_cert:
         type: path
         required: false
-        description: Path to a PEM-encoded CA certificate for TLS verification of KV module calls.
+        description: >-
+          Path to a PEM-encoded CA certificate for TLS verification of KV
+          module calls and the role's uri calls (token lookup, SSH signing).
+          auth_login has no TLS parameters — for AppRole/Kubernetes login,
+          trust the CA on the executing host (system store or
+          REQUESTS_CA_BUNDLE).
       vault_namespace:
         type: str
         default: root
@@ -133,8 +138,11 @@ argument_specs:
         description: Mode of the rendered config file.
       vault_render_backup:
         type: bool
-        default: true
-        description: Keep a backup of the previous rendered config file.
+        default: false
+        description: >-
+          Keep a backup of the previous rendered config file. Off by default —
+          backups are timestamped plaintext copies of old secret values that
+          persist on the target after rotation.
       vault_ssh_mount:
         type: str
         default: ssh

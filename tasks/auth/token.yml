@@ -6,6 +6,7 @@
         url: "{{ vault_addr }}/{{ __vault_api_prefix }}/auth/token/lookup-self"
         method: GET
         validate_certs: "{{ vault_validate_certs }}"
+        ca_path: "{{ vault_ca_cert | default(omit) }}"
         headers:
           X-Vault-Token: "{{ vault_token_value }}"
         status_code:

@@ -28,6 +28,7 @@
         url: "{{ vault_addr }}/{{ __vault_api_prefix }}/{{ vault_ssh_mount }}/sign/{{ vault_ssh_client_role }}"
         method: POST
         validate_certs: "{{ vault_validate_certs }}"
+        ca_path: "{{ vault_ca_cert | default(omit) }}"
         headers:
           X-Vault-Token: "{{ vault_token }}"
         body_format: json
