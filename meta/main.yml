@@ -9,7 +9,7 @@ galaxy_info:
     Integrate playbooks with an external HashiCorp Vault server —
     authenticate (AppRole, Token, Kubernetes), read/write KV secrets, and
     sign SSH host/client certificates via the SSH secrets engine.
-  license: MIT
+  license: GPL-3.0-or-later
   min_ansible_version: "2.16"
   platforms:
     - name: "EL"
