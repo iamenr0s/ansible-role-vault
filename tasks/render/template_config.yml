@@ -1,5 +1,6 @@
 ---
 - name: Assert render destination is configured
+  tags: vault
   ansible.builtin.assert:
     that:
       - vault_render_dest is defined
@@ -8,6 +9,7 @@
     quiet: true
 
 - name: Render Vault secrets into the destination config file
+  tags: vault
   ansible.builtin.template:
     src: "{{ vault_render_template }}"
     dest: "{{ vault_render_dest }}"

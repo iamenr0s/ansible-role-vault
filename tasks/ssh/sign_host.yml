@@ -1,5 +1,6 @@
 ---
 - name: Assert host signing variables are configured
+  tags: vault
   ansible.builtin.assert:
     that:
       - vault_ssh_host_role is defined
@@ -8,6 +9,7 @@
     quiet: true
 
 - name: Sign SSH host certificate via Vault SSH secrets engine
+  tags: vault
   block:
     - name: Read host public key from the target
       ansible.builtin.slurp:
@@ -45,6 +47,7 @@
           public key exists at {{ vault_ssh_host_pubkey_path }}.
 
 - name: Write signed host certificate to disk
+  tags: vault
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/render/write_ssh_cert.yml"
   vars:
     __vault_ssh_signed_key: "{{ __vault_ssh_host_sign_result['json']['data']['signed_key'] }}"

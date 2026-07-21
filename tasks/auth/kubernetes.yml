@@ -1,5 +1,6 @@
 ---
 - name: Obtain Vault token via Kubernetes auth
+  tags: vault
   block:
     # auth_login has no TLS parameters (verified against hashicorp.vault
     # 2.0.0-dev): server trust comes from the system CA store or

@@ -1,5 +1,6 @@
 ---
 - name: Verify supplied token and normalize into vault_token
+  tags: vault
   block:
     - name: Verify token via self-lookup
       ansible.builtin.uri:
