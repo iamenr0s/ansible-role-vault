@@ -45,11 +45,27 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - almalinux9
-          - rockylinux9
-          - debian12
+          - fedora42
+          - fedora43
+          - fedora44
           - ubuntu2204
           - ubuntu2404
+          - debian12
+          - debian13
+          - almalinux8
+          - almalinux9
+          - almalinux10
+          - rockylinux8
+          - rockylinux9
+          - rockylinux10
+        include:
+          # EL8 ships managed-node Python 3.6.8, below ansible-core 2.17's
+          # floor — pin those legs to ansible-core 2.16.x. Every other leg
+          # uses latest ansible (dnf5 support on Fedora 41+ needs it).
+          - distro: almalinux8
+            ansible_pin: "ansible<10"
+          - distro: rockylinux8
+            ansible_pin: "ansible<10"
 
     steps:
       - name: Check out the codebase.
@@ -63,7 +79,7 @@ jobs:
       # The scenario's driver is podman (molecule/default/molecule.yml);
       # ubuntu-latest runners ship the podman CLI.
       - name: Install test dependencies.
-        run: pip3 install ansible==14.2.0 molecule==26.6.0 molecule-plugins[podman]==26.7.15 requests==2.34.2
+        run: pip3 install "${{ matrix.ansible_pin || 'ansible==14.2.0' }}" molecule==26.6.0 molecule-plugins[podman]==26.7.15 requests==2.34.2
 
       - name: Run Molecule tests.
         run: molecule test

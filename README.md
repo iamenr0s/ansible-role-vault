@@ -27,8 +27,9 @@ Requirements
 
 Supported Platforms
 -------------------
-- AlmaLinux/Rocky/EL 9
-- Debian 12 (bookworm)
+- AlmaLinux/Rocky/EL 8, 9, 10
+- Fedora 42, 43, 44
+- Debian 12 (bookworm), 13 (trixie)
 - Ubuntu 22.04 (jammy), 24.04 (noble)
 
 Role Variables
