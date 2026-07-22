@@ -1,4 +1,4 @@
-[![Molecule](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/molecule.yml) [![Release](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/release.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/release.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/ansible_role_vault) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-vault/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-vault)
+[![Molecule](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-vault/actions/workflows/molecule.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/ansible_role_vault) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-vault/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-vault)
 
 Ansible Role: Vault
 ===================
