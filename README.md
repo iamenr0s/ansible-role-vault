@@ -152,13 +152,23 @@ Notes
 - `auth_login` has no TLS parameters: server trust for the login call comes from the executing host's CA store (or `REQUESTS_CA_BUNDLE`). `vault_validate_certs`/`vault_ca_cert` apply to the KV modules and the role's `uri` calls.
 - Set `vault_namespace` to `admin` (HCP Vault Dedicated) or your Enterprise namespace when not using OSS Vault.
 
-License
--------
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
+local pipeline commands and pull request checklist. This project follows the
+[Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Security
+
+See [SECURITY.md](SECURITY.md) — GitHub private vulnerability reporting, no
+public issues for security bugs.
+
+## License
+
 This project is licensed under the [MIT License](LICENSE).
 
+## Author Information
 
-Author Information
-------------------
 Author: iamenr0s
 
 Galaxy: `iamenr0s.ansible_role_vault`
