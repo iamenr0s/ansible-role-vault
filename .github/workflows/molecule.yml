@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12'
+          python-version: '3.15'
 
       - name: Install test dependencies.
         run: pip3 install yamllint==1.38.0 ansible-lint==26.6.0 ansible==14.2.0
@@ -74,7 +74,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12'
+          python-version: '3.15'
 
       # The scenario's driver is podman (molecule/default/molecule.yml);
       # ubuntu-latest runners ship the podman CLI.
